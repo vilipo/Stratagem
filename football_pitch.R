@@ -12,7 +12,7 @@ lapply(data_raw, table)
 one_game <- data_raw[gsm_id == gsm_id[2]][team == team[1], `:=` (location_x = -location_x, location_y = 420-location_y), team]
 
 player_plot <- function(player_chosen) {
-one_player <- data_raw[player == player_chosen]
+one_player <- data_raw[player == player_chosen][, goal := ifelse(icon == 'goal', 'goal', 'missed')]
 plot_data <- one_player
 
 title <- paste0(player_chosen, ' - ', one_player$team[1])
@@ -30,17 +30,18 @@ ggplot() +
   geom_point(aes(x = 0, y = 44), size=4, shape=20, color="black") +
   geom_point(aes(x = 0, y = 210), size=40, shape=1, color="black") +
   geom_point(aes(x = 0, y = 210), size=4, shape=20, color="black") +
-  geom_point(data = plot_data, aes(location_x, location_y, color = (icon=='goal'), shape = bodyPart), size = 4, shape = 19, alpha = 0.8) +
+  geom_point(data = plot_data, aes(location_x, location_y, color = goal, shape = bodyPart), size = 4, shape = 19, alpha = 0.8) +
   theme(axis.line=element_blank(),
         axis.text.x=element_blank(),
         axis.text.y=element_blank(),
         axis.ticks=element_blank(),
         axis.title.x=element_blank(),
         axis.title.y=element_blank())+
+  scale_color_manual(values = setNames(c('#AA4D39', '#297B48'), c('missed', 'goal'))) +
   ggtitle(title)
 
-ggsave(paste0('plots/'title, '.jpg'))
+ggsave(paste0('plots/',title, '.jpg'))
   
 }
 
-plot_list <- lapply(unique(data_raw$player)[10:20], player_plot)
+save_plot_list <- lapply(unique(data_raw$player)[1:20], player_plot)
